@@ -2,6 +2,15 @@ import colors from 'vuetify/es5/util/colors'
 
 export default {
     ssr: false,
+    generate: {
+        fallback: true
+    },
+    target: "static",
+
+    router: {
+        mode: 'history',
+        base: "/followme_client/"
+    },
     // Global page headers: https://go.nuxtjs.dev/config-head
     head: {
         titleTemplate: '%s - followme_client',
@@ -27,7 +36,9 @@ export default {
     },
 
     // Global CSS: https://go.nuxtjs.dev/config-css
-    css: [],
+    css: [
+        'material-icons/iconfont/material-icons.css'
+    ],
 
     // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
     plugins: [],
@@ -44,7 +55,10 @@ export default {
     ],
 
     // Modules: https://go.nuxtjs.dev/config-modules
-    modules: [],
+    modules: [
+        // Simple usage
+        'quasar-nuxt'
+    ],
 
     // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
     vuetify: {

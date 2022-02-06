@@ -65,7 +65,7 @@ class CoreModule extends VuexModule {
   }
 
 
-  async putImageHttpAlert(url: string, form: any): Promise<any> {
+  async putFileHttpAlert(url: string, form: any): Promise<any> {
     let check = await Web.confirm("Are you sure you want to edit the information?")
     if (check) {
       return await axios.put(url, form,{
@@ -77,6 +77,22 @@ class CoreModule extends VuexModule {
         return r.data
       }).catch((e) => {
         Web.alert('Failed to edit data', 'error')
+        return e.response.data
+      })
+    }
+  }
+  async postFileHttpAlert(url: string, form: any): Promise<any> {
+    let check = await Web.confirm("Are you sure you want to Upload the information?")
+    if (check) {
+      return await axios.post(url, form,{
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+    }).then((r) => {
+        Web.alert('Successfully Upload')
+        return r.data
+      }).catch((e) => {
+        Web.alert('Failed to Upload data', 'error')
         return e.response.data
       })
     }

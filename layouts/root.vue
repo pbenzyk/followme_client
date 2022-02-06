@@ -1,6 +1,9 @@
 <template>
 <div>
-    <Nuxt />
+    <v-app>
+                <Nuxt />
+    </v-app>
+
 </div>
 </template>
 

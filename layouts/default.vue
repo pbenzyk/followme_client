@@ -1,118 +1,61 @@
 <template>
-  <v-app dark>
-    <v-navigation-drawer
-      v-model="drawer"
-      :mini-variant="miniVariant"
-      :clipped="clipped"
-      fixed
-      app
-    >
-      <v-list>
-        <v-list-item
-          v-for="(item, i) in items"
-          :key="i"
-          :to="item.to"
-          router
-          exact
-        >
-          <v-list-item-action>
-            <v-icon>{{ item.icon }}</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title v-text="item.title" />
-          </v-list-item-content>
-        </v-list-item>
-      </v-list>
-    </v-navigation-drawer>
-    <v-app-bar
-      :clipped-left="clipped"
-      fixed
-      app
-    >
-      <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
-      <v-btn
-        icon
-        @click.stop="miniVariant = !miniVariant"
-      >
-        <v-icon>mdi-{{ `chevron-${miniVariant ? 'right' : 'left'}` }}</v-icon>
-      </v-btn>
-      <v-btn
-        icon
-        @click.stop="clipped = !clipped"
-      >
-        <v-icon>mdi-application</v-icon>
-      </v-btn>
-      <v-btn
-        icon
-        @click.stop="fixed = !fixed"
-      >
-        <v-icon>mdi-minus</v-icon>
-      </v-btn>
-      <v-toolbar-title v-text="title" />
-      <v-spacer />
-      <v-btn
-        icon
-        @click.stop="rightDrawer = !rightDrawer"
-      >
-        <v-icon>mdi-menu</v-icon>
-      </v-btn>
+<v-app dark>
+
+    <v-app-bar fixed  app>
+
+        <v-toolbar-title>FOLLOWME ALPHA</v-toolbar-title>
+        <v-spacer />
+        <v-btn @click="$router.push(`/`)" text class="ml-2" color="success">Home</v-btn>
+        <v-btn @click="$router.push(`/courses`)" text class="ml-2" color="success">Courses</v-btn>
+        <v-btn @click="$router.push(`/mycourse`)" text class="ml-2" color="success">My Courses</v-btn>
+        <v-btn @click="$router.push(`/profile`)" text class="ml-2" color="success">Profile</v-btn>
+        <v-btn @click="logout()" text class="ml-2" color="success">logout</v-btn>
     </v-app-bar>
     <v-main>
-      <v-container>
-        <Nuxt />
-      </v-container>
+        <v-container v-if="response">
+            <Nuxt /> 
+        </v-container>
     </v-main>
-    <v-navigation-drawer
-      v-model="rightDrawer"
-      :right="right"
-      temporary
-      fixed
-    >
-      <v-list>
-        <v-list-item @click.native="right = !right">
-          <v-list-item-action>
-            <v-icon light>
-              mdi-repeat
-            </v-icon>
-          </v-list-item-action>
-          <v-list-item-title>Switch drawer (click me)</v-list-item-title>
-        </v-list-item>
-      </v-list>
-    </v-navigation-drawer>
-    <v-footer
-      :absolute="!fixed"
-      app
-    >
-      <span>&copy; {{ new Date().getFullYear() }}</span>
+
+    <v-footer   app>
+        <span>&copy; {{ new Date().getFullYear() }}</span>
     </v-footer>
-  </v-app>
+</v-app>
 </template>
 
 <script>
+import {
+    Auth
+} from '@/vuexes/auth'
+import {
+    Core
+} from '@/vuexes/core'
 export default {
-  name: 'DefaultLayout',
-  data () {
-    return {
-      clipped: false,
-      drawer: false,
-      fixed: false,
-      items: [
-        {
-          icon: 'mdi-apps',
-          title: 'Welcome',
-          to: '/'
+    name: 'DefaultLayout',
+    data() {
+        return {
+            response:false
+         }
+    },
+    async created() {
+       await Auth.checkToken();
+        await Auth.setUser(); 
+        await this.checkUser();
+        this.response = true
+    },
+    methods: {
+        async logout() {
+            await Auth.logout();
+            await location.reload();
         },
-        {
-          icon: 'mdi-chart-bubble',
-          title: 'Inspire',
-          to: '/inspire'
+        async checkUser() {
+            let user = await Auth.getUser();
+            if (!user.pk) {
+                await this.$router.replace(`/authen/login`)
+            } else {
+               // await Core.getChoices();
+            }
         }
-      ],
-      miniVariant: false,
-      right: true,
-      rightDrawer: false,
-      title: 'Vuetify.js'
     }
-  }
 }
 </script>
