@@ -10,7 +10,6 @@
         "upload": "npm run build && npm run generate &&  gh-pages -d dist -t true"
     },
     "dependencies": {
-        "@mediapipe/pose": "^0.5.1635988162",
         "@nuxtjs/axios": "^5.13.6",
         "@tensorflow-models/pose-detection": "^1.0.1",
         "@tensorflow/tfjs-converter": "^3.13.0",

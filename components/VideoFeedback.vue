@@ -1,13 +1,14 @@
 <template>
   <div class="video-feedback" :class="type">
-   
-    <video ref="videoObj"   playsinline preload
+    <!-- TODO: Have resize observer to onResize() everytime the window is resized /-->
+
+    <video ref="videoObj" class="hidden" playsinline preload
       :width="videoWidth" :height="videoHeight"
       v-audio-level = "videoOptions.audio"
       v-playback-rate = "(videoSrc) ? 1 : false"
       crossorigin="anonymous"
       @loadedmetadata = "onVideoMetaLoaded"
-      @timeupdate="($refs.videoObj) ? $emit('timeupdate', $refs.videoObj.currentTime) : ''"
+      @timeupdate="onTimeUpdate"
       @ended="$emit('ended')"></video>
     <canvas ref="videoOut" />
   </div>
@@ -42,12 +43,12 @@ export default {
     videoOptions: {
       type: Object,
       default () {
-        return {
+        return {          
           loadPose: true,
           showSkeleton: true,
           audio: 0,
           opacity: 1,
-          mirror: true,
+          mirror: false,
           drawFeedbackBody: true,
           drawFeedbackArms: true,
           drawFeedbackLegs: true,
@@ -65,6 +66,7 @@ export default {
       offscreenCanvas: null,
       poseVideoJson: null,
       timestamp: 0,
+      fduration: 0,
       boneColor: (this.type === 'trainer') ? '#ff147a' : '#2babff',
       jointColor: (this.type === 'trainer') ? '#ff87ba' : '#D4E6F1'
     }
@@ -115,10 +117,8 @@ export default {
      * @param {object} stream Source object, e.g., camera stream
      */
     setSrcObject (stream) {
+      this.videoSrc = null
       this.$refs.videoObj.srcObject = stream
-      this.$refs.videoObj.onloadedmetadata = () => {
-        this.$refs.videoObj.play()
-      }
     },
 
     /**
@@ -210,13 +210,15 @@ export default {
 
         if (this.poseVideoJson.recorded[this.recordedVideoIndex] &&
           this.poseVideoJson.recorded[this.recordedVideoIndex].time - this.timestamp < 0.2) {
-          poseVideo = this.poseVideoJson.recorded[this.recordedVideoIndex].pose
+          poseVideo = Util.toCOCO(this.poseVideoJson.recorded[this.recordedVideoIndex])
         }
       } else {
         // Realtime estimation
-        var posesVideo = await this.detector.estimatePoses(this.offscreenCanvas)
-        if (posesVideo[0]) poseVideo = Util.toCOCO(posesVideo[0])
-        mask = posesVideo.segmentationMask
+        var poses = await this.detector.estimatePoses(this.offscreenCanvas)
+        if (poses[0]) {
+          poseVideo = Util.toCOCO(poses[0])
+          if (poses[0].segmentation) mask = await poses[0].segmentation.mask.toCanvasImageSource()
+        }
       }
 
       if (this.videoOptions.opacity === 0) {
@@ -250,12 +252,38 @@ export default {
       this.offscreenCanvas.width = this.videoWidth
       this.offscreenCanvas.height = this.videoHeight
 
+      // Play the camera stream
+      if (this.videoSrc === null) 
+        this.$refs.videoObj.play()
+      else
+        this.fduration = Math.floor(this.$refs.videoObj.duration)
+
       /**
        * Fire when the browser has loaded metadata for this video
        * @event loadedmetadata
        * @property {number} duration The duration of this video
        */
       this.$emit('loadedmetadata', this.$refs.videoObj.duration)
+    },
+
+    /**
+     * Called when the current video time is updated.
+     */
+    onTimeUpdate () {      
+      if (this.videoSrc) {
+        /**
+         * Fire when the current playback position has changed.
+         * @event timeupdate
+         * @property {number} currentTime The current time of this video
+         */
+        this.$emit('timeupdate', this.$refs.videoObj.currentTime)
+
+        // TODO: Test the ended event more and remove this dirty fix
+        // Somehow sometime the ended event is not fired. This is a dirty fix.
+        if (this.$refs.videoObj.currentTime >= this.fduration) {
+          this.$emit('ended')
+        }
+      }
     },
 
     /**
@@ -304,7 +332,7 @@ export default {
 <style>
 .video-feedback {
   position: absolute;
-  width: 85%;
+  width: 95%;
   overflow: hidden;
 }
 .video-feedback.learner {
