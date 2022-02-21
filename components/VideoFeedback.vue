@@ -66,7 +66,6 @@ export default {
       offscreenCanvas: null,
       poseVideoJson: null,
       timestamp: 0,
-      fduration: 0,
       boneColor: (this.type === 'trainer') ? '#ff147a' : '#2babff',
       jointColor: (this.type === 'trainer') ? '#ff87ba' : '#D4E6F1'
     }
@@ -251,12 +250,10 @@ export default {
 
       this.offscreenCanvas.width = this.videoWidth
       this.offscreenCanvas.height = this.videoHeight
-
+      
       // Play the camera stream
-      if (this.videoSrc === null) 
-        this.$refs.videoObj.play()
-      else
-        this.fduration = Math.floor(this.$refs.videoObj.duration)
+      if (this.videoSrc === null)
+        this.$refs.videoObj.play() 
 
       /**
        * Fire when the browser has loaded metadata for this video
@@ -270,19 +267,13 @@ export default {
      * Called when the current video time is updated.
      */
     onTimeUpdate () {      
-      if (this.videoSrc) {
+      if (this.videoSrc && this.$refs.videoObj) {
         /**
          * Fire when the current playback position has changed.
          * @event timeupdate
          * @property {number} currentTime The current time of this video
          */
         this.$emit('timeupdate', this.$refs.videoObj.currentTime)
-
-        // TODO: Test the ended event more and remove this dirty fix
-        // Somehow sometime the ended event is not fired. This is a dirty fix.
-        if (this.$refs.videoObj.currentTime >= this.fduration) {
-          this.$emit('ended')
-        }
       }
     },
 

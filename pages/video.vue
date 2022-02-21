@@ -14,7 +14,7 @@
 
           <span class="time">{{ toMS(currentTime) }} / {{ toMS(duration) }}</span>
           <div class="video-control col-auto row bg-primary">
-            <record-button v-if="mode === 'on' && recordedMimeTypes" ref="recordbutton" :mimetype="recordedMimeTypes" @click="playToggle" />
+            <record-button v-if="mode === 'on'" ref="recordbutton" @click="playToggle" />
             <q-btn v-else :icon="(isPlaying) ? 'pause' : 'play_arrow'" @click="playToggle" />
 
             <div class="col">
@@ -121,7 +121,7 @@
             <q-card>
                 <q-card-section align="center">
                     <div class="text-h6">ฝึกเสร็จแล้ว</div>
-                    <q-btn v-if="mode === 'on' && recordedMimeTypes" label="ดาวน์โหลดวิดีโอการฝึก" color="primary" @click="download" />
+                    <q-btn v-if="mode === 'on'" label="ดาวน์โหลดวิดีโอการฝึก" color="primary" @click="download" />
                 </q-card-section>
 
                 <q-card-actions align="center">
@@ -142,8 +142,6 @@ import {
     AppFullscreen 
 } from 'quasar'
 import * as poseDetection from '@tensorflow-models/pose-detection/dist/index.js' // Need to import index.js to make patch work
-
-import Util from '@/lib/util'
 
 const CAM_WIDTH = 1024
 const CAM_HEIGHT = 600
@@ -177,7 +175,6 @@ export default {
       infopanel: true,
       alert: false,
       mode: 'on', // TODO: This was previously passed using router 'appmode', hidden from users
-      recordedMimeTypes: false,
       isPlaying: false,
       currentTime: 0,
       duration: 0,
@@ -311,19 +308,13 @@ methods: {
 
       //   Loading.show()
 
-      // Get MIME type for learner's recording
-      // this.recordedMimeTypes = SessionStorage.getItem('recordedMimeTypes')
-            //   if (!this.recordedMimeTypes) {
-            //     this.recordedMimeTypes = Util.getSupportedMimeTypes()
-            //     SessionStorage.set('recordedMimeTypes', this.recordedMimeTypes)
-            //   }
-
       // Load videos and detector
       await this.loadVideos()
       await this.loadDetector()
 
       // Set up feedback
       this.learnerOptions.feedbackType = (this.$route.query.feedback) ? this.feedbackOptions[parseInt(this.$route.query.feedback)] : null
+      this.learnerOptions.showSkeleton = (this.$route.query.skeleton === "false") ? false : true
       
       this.requestPoseDetectionFrame()
       Loading.hide()
@@ -383,7 +374,7 @@ methods: {
     onVideoEnd() {
       AppFullscreen.exit()
       this.isPlaying = false
-      if (this.$refs.recordbutton) this.$refs.recordbutton.stop()
+      if (this.$refs.recordbutton) this.$refs.recordbutton.pause()
 
       if (this.mode !== 'recorded') this.alert = true
     },
