@@ -10,7 +10,7 @@
                 <span class="text-sm text-white">ผู้สอน {{course.user_full}} </span><br>
                 <span class="text-sm text-white"> {{dateConvert(course.created_at)}}</span>
             </div>
-            <img class="lg:absolute top-0 right-0 bottom-0 h-full w-full lg:w-1/3 object-cover" :src="course.image" alt="">
+            <img class="lg:absolute top-0 right-0 bottom-0 h-full w-full lg:w-1/3 object-cover" :src="$url+course.image" alt="">
         </div>
 
         <div>
@@ -99,7 +99,7 @@
                     </v-btn>
                 </v-card-title>
                 <v-card-text>
-                    <video autoplay controls :src="result.video"></video>
+                    <video autoplay controls :src="$url+result.video"></video>
                 </v-card-text>
             </v-card>
         </v-dialog>
@@ -113,7 +113,7 @@
                     </v-btn>
                 </v-card-title>
                 <v-card-text>
-                    <video autoplay controls :src="course.video"></video>
+                    <video autoplay controls :src="$url+course.video"></video>
                 </v-card-text>
             </v-card>
         </v-dialog>

@@ -13,7 +13,7 @@
             </div>
             <div class="flex flex-wrap items-center mb-6 bg-blue-50" v-for="(course,index) in courses" :key="index">
                 <div class="w-full lg:w-2/5 h-80">
-                    <img v-if="course.image" class="w-full h-full object-cover clip-path-right-top"  :src="course.image" alt="">
+                    <img v-if="course.image" class="w-full h-full object-cover clip-path-right-top"  :src="$url+course.image" alt="">
                     <img v-else class="w-full h-full object-cover clip-path-right-top" src="https://images.unsplash.com/photo-1581279219053-6c0ef420e10b?ixlib=rb-1.2.1&amp;ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&amp;auto=format&amp;fit=crop&amp;w=1050&amp;q=80" alt="">
                 </div>
                 <div class="w-full lg:w-3/5 p-8 lg:px-16">
