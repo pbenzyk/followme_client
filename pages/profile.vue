@@ -9,6 +9,7 @@
             <v-text-field dense outlined label="phone_number"  v-model="form.phone_number"></v-text-field>
             <v-text-field dense outlined label="address"  v-model="form.address"></v-text-field> 
             <v-btn type="submit" color="success">Save</v-btn>
+            
       </form>
   </div>
 </template>
